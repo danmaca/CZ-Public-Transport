@@ -260,7 +260,11 @@ class ConnectionPlatform:
                             )
                 description += DESCRIPTION_FOOTER[self._description_format]
 
+                entityConnDetails = []
+
                 for connection in self._api.connection_detail:
+                    entityConn = []
+                    entityConnDetails.append(entityConn)
                     for trains in connection:
                         currDtm = datetime.now()
                         departureTm = datetime.strptime(trains["depTime"], "%H:%M")
@@ -268,6 +272,7 @@ class ConnectionPlatform:
                         if depDatetime < (currDtm - timedelta(hours=3)):
                             depDatetime = depDatetime + timedelta(days=1)
                         trains["depDatetime"] = depDatetime
+                        entityConn.append(trains)
 
                 entity.update_status(
                     self._api.departure,
@@ -275,7 +280,7 @@ class ConnectionPlatform:
                     self._api.departure + " (" + connections + ")",
                     connections,
                     description,
-                    self._api.connection_detail,
+                    entityConnDetails,
                     delay,
                 )
             else:

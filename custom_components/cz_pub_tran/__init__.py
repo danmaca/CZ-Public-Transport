@@ -97,7 +97,10 @@ async def async_setup(hass, config):
             hass.data[DOMAIN].handle_set_time,
             schema=SET_START_TIME_SCHEMA,
         )
-        async_call_later(hass, 1, hass.data[DOMAIN].async_update_Connections())
+
+        async def _updateConnections1(*_):
+            await hass.data[DOMAIN].async_update_Connections()
+        async_call_later(hass, 1, _updateConnections1)
     else:
         _LOGGER.debug("Service already registered and update scheduled")
     return True
@@ -194,7 +197,10 @@ class ConnectionPlatform:
             except AttributeError:
                 entity.start_time = None
             entity.load_defaults()
-            async_call_later(self._hass, 0, self.async_update_Connections())
+
+            async def _updateConnections2(*_):
+                await self.async_update_Connections()
+            async_call_later(self._hass, 0, _updateConnections2)
 
     def add_sensor(self, sensor):
         """Add new connection."""
@@ -285,6 +291,9 @@ class ConnectionPlatform:
                 )
             else:
                 entity.update_status("", "", STATUS_NO_CONNECTION, "", "", None, "")
+        
+        async def _updateConnections3(*_):
+            await self.async_update_Connections()
         async_call_later(
-            self._hass, self._scan_interval, self.async_update_Connections()
+            self._hass, self._scan_interval, _updateConnections3
         )
